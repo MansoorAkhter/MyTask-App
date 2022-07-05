@@ -1,11 +1,44 @@
-import { StyleSheet, Text, View, Button, TextInput } from "react-native";
+import { useState } from "react";
+import {
+  StyleSheet,
+  View,
+  FlatList,
+} from "react-native";
+import Goalinput from "./components/Goalinput";
+import Goalitem from "./components/Goalitem";
 
 export default function App() {
+  const [courseGoals, setCourseGoals] = useState([]);
+
+  function addGoalHandler(yourGoal) {
+    setCourseGoals((currentCourseGoals) => [
+      ...currentCourseGoals,
+      { text: yourGoal, id: Math.random().toString() },
+    ]);
+  }
+
+  function deleteGoalHandler(id){
+    setCourseGoals((currentCourseGoals)=>{
+      return currentCourseGoals.filter((goal)=>goal.id !== id);
+    })
+  }
   return (
     <View style={styles.appContainer}>
-      <View style={styles.inputContainer}>
-        <TextInput style={styles.textInput} placeholder="Your learning goal!"/>
-        <Button title="Add Goal"/>
+      <Goalinput onAddGoal={addGoalHandler} />
+      <View style={styles.goalsContainer}>
+        {/* flatList does work with premitive value in data array as well */}
+        <FlatList
+          data={courseGoals}
+          renderItem={(itemData) => {
+            return <Goalitem text={itemData.item.text} 
+            id={itemData.item.id}
+            onDeleteItem={deleteGoalHandler}/>;
+          }}
+          // Reading about keyExtractor
+          keyExtractor={(item, index) => {
+            return item.id;
+          }}
+        />
       </View>
     </View>
   );
@@ -13,22 +46,11 @@ export default function App() {
 
 const styles = StyleSheet.create({
   appContainer: {
-    paddingTop:50,
-    paddingHorizontal:16
+    flex: 1,
+    paddingTop: 50,
+    paddingHorizontal: 16,
   },
-  inputContainer:{
-    flexDirection:"row",
-    justifyContent:"space-between",
-    alignItems:"center",
-    paddingBottom:24,
-    borderBottomWidth:1,
-    borderBottomColor:"#cccccc"
+  goalsContainer: {
+    flex: 4,
   },
-  textInput:{
-    borderWidth:1,
-    borderColor:"#cccccc",
-    width:"70%",
-    marginRight: 8,
-    padding:5,
-  }
 });
